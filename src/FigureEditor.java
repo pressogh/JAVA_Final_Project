@@ -4,3 +4,6 @@ public class FigureEditor {
 		System.out.println("Test");
 	}
 }
+
+
+AAA
