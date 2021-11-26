@@ -16,7 +16,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class FigureEditor extends JFrame {
-	String selectedBtn = "사각";
+	String selectedBtn = "";
+	Vector<Shape> shapeArray = new Vector<>();
 	
 	public FigureEditor() {
 		setTitle("Figure Editor");
@@ -34,7 +35,6 @@ public class FigureEditor extends JFrame {
 	
 	private class CenterPanel extends JPanel {
 		Point start, end;
-		Vector<Shape> shapeArray = new Vector<>();
 		public CenterPanel() {
 			setLayout(new FlowLayout());
 			setBackground(Color.YELLOW);
@@ -79,12 +79,53 @@ public class FigureEditor extends JFrame {
 		}
 		private class mouseListener extends MouseAdapter {
 			@Override
+			public void mouseClicked(MouseEvent e) {
+				Point point = e.getPoint();
+				for (Shape item : shapeArray) {
+					if (item instanceof Rectangle || item instanceof Circle) {
+						if ((point.x >= item.x && point.y >= item.y) && (point.x <= item.x + item.width && point.y <= item.y + item.height)) {
+							for (Shape ele : shapeArray) {
+								if (ele instanceof Rectangle || ele instanceof Circle || ele instanceof Line) ele.selected = false;
+							}
+
+							item.selected = true;
+							break;
+						}
+						else item.selected = false;
+					}
+					else if (item instanceof Line) {
+						if (point.x >= Math.min(item.x, item.width) && point.y >= Math.min(item.y, item.height) && point.x <= Math.max(item.x, item.width) && point.y <= Math.max(item.y, item.height)) {
+							for (Shape ele : shapeArray) {
+								if (ele instanceof Rectangle || ele instanceof Circle || ele instanceof Line) ele.selected = false;
+							}
+							item.selected = true;
+							break;
+						}
+						else item.selected = false;
+					}
+				}
+			}
+			@Override
 			public void mousePressed(MouseEvent e) {
 				start = e.getPoint();
 			}
 			@Override
 			public void mouseDragged(MouseEvent e) {
 				end = e.getPoint();
+				for (Shape item : shapeArray) {
+					if (item instanceof Rectangle || item instanceof Circle || item instanceof Line)
+						if (item.selected) {
+							int lastX = item.x, lastY = item.y;
+							item.x = e.getPoint().x;
+							item.y = e.getPoint().y;
+
+							if (item instanceof Line) {
+								item.width -= lastX - item.x;
+								item.height -= lastY - item.y;
+							}
+							repaint();
+						}
+				}
 				repaint();
 			}
 			@Override
@@ -96,6 +137,7 @@ public class FigureEditor extends JFrame {
 				else if (selectedBtn.equals("타원") )shp = new Circle(Math.min(start.x, end.x), Math.min(start.y, end.y), Math.abs(start.x - end.x), Math.abs(start.y - end.y));
 				else if (selectedBtn.equals("직선")) shp = new Line(start.x, start.y, end.x, end.y);
 				shapeArray.add(shp);
+				selectedBtn = "";
 				repaint();
 			}
 		}
@@ -118,6 +160,9 @@ public class FigureEditor extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				selectedBtn = e.getActionCommand();
+				for (Shape item : shapeArray) {
+					if (item instanceof Rectangle || item instanceof Circle || item instanceof Line) item.selected = false;
+				}
 			}
 		}
 	}
@@ -138,44 +183,50 @@ public class FigureEditor extends JFrame {
 
 class Shape {
 	int x, y;
-	public Shape(int x, int y) {
+	int width, height;
+	boolean selected;
+
+	public Shape(int x, int y, int width, int height) {
 		this.x = x;
 		this.y = y;
+		this.width = width;
+		this.height = height;
+		this.selected = false;
 	}
 }
 class Rectangle extends Shape {
-	int width, height;
 	public Rectangle(int x, int y, int width, int height) {
-		super(x, y);
-		this.width = width;
-		this.height = height;
+		super(x, y, width, height);
 	}
-
 	public void draw(Graphics g) {
 		g.drawRect(x, y, width, height);
+		if (selected) {
+			g.drawRect(x - 2, y - 2, 4, 4);
+			g.drawRect(x + width - 2, y + height - 2, 4, 4);
+		}
 	}
 }
 class Circle extends Shape {
-	int width, height;
 	public Circle(int x, int y, int width, int height) {
-		super(x, y);
-		this.width = width;
-		this.height = height;
+		super(x, y, width, height);
 	}
-
 	public void draw(Graphics g) {
 		g.drawOval(x, y, width, height);
+		if (selected) {
+			g.drawRect(x - 2, y - 2, 4, 4);
+			g.drawRect(x + width - 2, y + height - 2, 4, 4);
+		}
 	}
 }
 class Line extends Shape {
-	int x2, y2;
 	public Line(int x1, int y1, int x2, int y2) {
-		super(x1, y1);
-		this.x2 = x2;
-		this.y2 = y2;
+		super(x1, y1, x2, y2);
 	}
-
 	public void draw(Graphics g) {
-		g.drawLine(x, y, x2, y2);
+		g.drawLine(x, y, width, height);
+		if (selected) {
+			g.drawRect(x - 2, y - 2, 4, 4);
+			g.drawRect(width - 2,height - 2, 4, 4);
+		}
 	}
 }
