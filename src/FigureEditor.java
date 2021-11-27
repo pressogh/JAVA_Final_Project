@@ -171,11 +171,25 @@ public class FigureEditor extends JFrame {
 					for (Shape item : shapeArray) {
 						if ((item instanceof Rectangle || item instanceof Circle || item instanceof Line) && item.selected) {
 							if (item instanceof Rectangle) shp = new Rectangle(item.x + 10, item.y + 10, item.width, item.height);
+							else if (item instanceof Circle) shp = new Circle(item.x + 10, item.y + 10, item.width, item.height);
+							else if (item instanceof Line) shp = new Line(item.x + 10, item.y + 10, item.width + 10, item.height + 10);
+							break;
 						}
 					}
 					shapeArray.add(shp);
 					cp.repaint();
 				}
+				else if (selectedBtn.equals("삭제")) {
+					for (int i = 0; i < shapeArray.size(); i++) {
+						if ((shapeArray.get(i) instanceof Rectangle || shapeArray.get(i) instanceof Circle || shapeArray.get(i) instanceof Line) && shapeArray.get(i).selected) {
+							shapeArray.remove(i);
+							break;
+						}
+					}
+					cp.repaint();
+				}
+
+				// 모든 도형 선택 해제
 				for (Shape item : shapeArray) {
 					if (item instanceof Rectangle || item instanceof Circle || item instanceof Line)
 						item.selected = false;
