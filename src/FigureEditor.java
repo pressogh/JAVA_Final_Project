@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 public class FigureEditor extends JFrame {
 	String selectedBtn = "";
 	Vector<Shape> shapeArray = new Vector<>();
+	CenterPanel cp = new CenterPanel();
 	
 	public FigureEditor() {
 		setTitle("Figure Editor");
@@ -27,7 +28,7 @@ public class FigureEditor extends JFrame {
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout());
 		
-		c.add(new CenterPanel(), BorderLayout.CENTER);
+		c.add(cp, BorderLayout.CENTER);
 		c.add(new WestPanel(), BorderLayout.WEST);
 		
 		setVisible(true);
@@ -132,12 +133,16 @@ public class FigureEditor extends JFrame {
 			public void mouseReleased(MouseEvent e) {
 				end = e.getPoint();
 
-				Shape shp = null;
-				if (selectedBtn.equals("사각")) shp = new Rectangle(Math.min(start.x, end.x), Math.min(start.y, end.y), Math.abs(start.x - end.x), Math.abs(start.y - end.y));
-				else if (selectedBtn.equals("타원") )shp = new Circle(Math.min(start.x, end.x), Math.min(start.y, end.y), Math.abs(start.x - end.x), Math.abs(start.y - end.y));
-				else if (selectedBtn.equals("직선")) shp = new Line(start.x, start.y, end.x, end.y);
-				shapeArray.add(shp);
-				selectedBtn = "";
+				if (selectedBtn.equals("사각") || selectedBtn.equals("타원") || selectedBtn.equals("직선")) {
+					Shape shp = null;
+					if (selectedBtn.equals("사각"))
+						shp = new Rectangle(Math.min(start.x, end.x), Math.min(start.y, end.y), Math.abs(start.x - end.x), Math.abs(start.y - end.y));
+					else if (selectedBtn.equals("타원"))
+						shp = new Circle(Math.min(start.x, end.x), Math.min(start.y, end.y), Math.abs(start.x - end.x), Math.abs(start.y - end.y));
+					else if (selectedBtn.equals("직선")) shp = new Line(start.x, start.y, end.x, end.y);
+					shapeArray.add(shp);
+					selectedBtn = "";
+				}
 				repaint();
 			}
 		}
@@ -160,8 +165,20 @@ public class FigureEditor extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				selectedBtn = e.getActionCommand();
+
+				if (selectedBtn.equals("복사")) {
+					Shape shp = null;
+					for (Shape item : shapeArray) {
+						if ((item instanceof Rectangle || item instanceof Circle || item instanceof Line) && item.selected) {
+							if (item instanceof Rectangle) shp = new Rectangle(item.x + 10, item.y + 10, item.width, item.height);
+						}
+					}
+					shapeArray.add(shp);
+					cp.repaint();
+				}
 				for (Shape item : shapeArray) {
-					if (item instanceof Rectangle || item instanceof Circle || item instanceof Line) item.selected = false;
+					if (item instanceof Rectangle || item instanceof Circle || item instanceof Line)
+						item.selected = false;
 				}
 			}
 		}
