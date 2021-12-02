@@ -9,6 +9,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.swing.JButton;
@@ -188,6 +190,23 @@ public class FigureEditor extends JFrame {
 					}
 					cp.repaint();
 				}
+				else if (selectedBtn.equals("저장")) {
+					try {
+						saveObjectToFile("out.dat");
+					} catch (IOException ex) {
+						System.out.println("IOException");
+					}
+				}
+				else if (selectedBtn.equals("불러오기")) {
+					try {
+						shapeArray = loadObjectFromFile("out.dat");
+					} catch (IOException ex) {
+						System.out.println("IOException");
+					} catch (ClassNotFoundException ex) {
+						System.out.println("ClassNotFoundException");
+					}
+					cp.repaint();
+				}
 
 				// 모든 도형 선택 해제
 				for (Shape item : shapeArray) {
@@ -195,6 +214,33 @@ public class FigureEditor extends JFrame {
 						item.selected = false;
 				}
 			}
+		}
+
+		public void saveObjectToFile(String fileName) throws IOException {
+			// ObjectOutputStream을 이용하여 파일에 클래스 저장
+			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(fileName));
+
+			for (Shape item : shapeArray) {
+				out.writeObject(item);
+			}
+			System.out.println("save");
+			out.close();
+		}
+		public Vector<Shape> loadObjectFromFile(String fileName) throws IOException, ClassNotFoundException {
+			// ObjectInputStream을 이용해 파일에서 클래스를 읽고 res에 저장
+			Vector<Shape> res = new Vector<>();
+			ObjectInputStream in = new ObjectInputStream(new FileInputStream(fileName));
+
+			Shape s;
+			try {
+				while ((s = (Shape) in.readObject()) != null) {
+					res.add(s);
+				}
+			} catch (EOFException e) {
+				in.close();
+				return res;
+			}
+			return res;
 		}
 	}
 	
@@ -212,7 +258,7 @@ public class FigureEditor extends JFrame {
 	}
 }
 
-class Shape {
+class Shape implements Serializable {
 	int x, y;
 	int width, height;
 	boolean selected;
