@@ -154,6 +154,8 @@ public class FigureEditor extends JFrame {
 						shp = new Circle(Math.min(start.x, end.x), Math.min(start.y, end.y), Math.abs(start.x - end.x), Math.abs(start.y - end.y));
 					else if (selectedBtn.equals("직선")) shp = new Line(start.x, start.y, end.x, end.y);
 					shapeArray.add(shp);
+
+					// init data
 					selectedBtn = "";
 					start = null;
 					end = null;
@@ -268,55 +270,5 @@ public class FigureEditor extends JFrame {
 	
 	public static void main(String[] args) {
 		new FigureEditor();
-	}
-}
-
-class Shape implements Serializable {
-	int x, y;
-	int width, height;
-	boolean selected;
-
-	public Shape(int x, int y, int width, int height) {
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
-		this.selected = false;
-	}
-}
-class Rectangle extends Shape {
-	public Rectangle(int x, int y, int width, int height) {
-		super(x, y, width, height);
-	}
-	public void draw(Graphics g) {
-		g.drawRect(x, y, width, height);
-		if (selected) {
-			g.drawRect(x - 2, y - 2, 4, 4);
-			g.drawRect(x + width - 2, y + height - 2, 4, 4);
-		}
-	}
-}
-class Circle extends Shape {
-	public Circle(int x, int y, int width, int height) {
-		super(x, y, width, height);
-	}
-	public void draw(Graphics g) {
-		g.drawOval(x, y, width, height);
-		if (selected) {
-			g.drawRect(x - 2, y - 2, 4, 4);
-			g.drawRect(x + width - 2, y + height - 2, 4, 4);
-		}
-	}
-}
-class Line extends Shape {
-	public Line(int x1, int y1, int x2, int y2) {
-		super(x1, y1, x2, y2);
-	}
-	public void draw(Graphics g) {
-		g.drawLine(x, y, width, height);
-		if (selected) {
-			g.drawRect(x - 2, y - 2, 4, 4);
-			g.drawRect(width - 2,height - 2, 4, 4);
-		}
 	}
 }
