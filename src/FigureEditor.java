@@ -48,8 +48,19 @@ public class FigureEditor extends JFrame {
 
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
-			if(start == null)
+			if(start == null) {
+				g.setColor(Color.BLUE);
+				for (Shape shape : shapeArray) {
+					if (shape instanceof Rectangle) {
+						((Rectangle) shape).draw(g);
+					} else if (shape instanceof Circle) {
+						((Circle) shape).draw(g);
+					} else if (shape instanceof Line) {
+						((Line) shape).draw(g);
+					}
+				}
 				return;
+			}
 			g.setColor(Color.BLUE);
 			int x = Math.min(start.x, end.x);
 			int y = Math.min(start.y, end.y);
@@ -205,7 +216,6 @@ public class FigureEditor extends JFrame {
 					} catch (ClassNotFoundException ex) {
 						System.out.println("ClassNotFoundException");
 					}
-					cp.repaint();
 				}
 
 				// 모든 도형 선택 해제
@@ -213,6 +223,7 @@ public class FigureEditor extends JFrame {
 					if (item instanceof Rectangle || item instanceof Circle || item instanceof Line)
 						item.selected = false;
 				}
+				cp.repaint();
 			}
 		}
 
