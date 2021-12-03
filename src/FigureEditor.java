@@ -155,6 +155,8 @@ public class FigureEditor extends JFrame {
 					else if (selectedBtn.equals("직선")) shp = new Line(start.x, start.y, end.x, end.y);
 					shapeArray.add(shp);
 					selectedBtn = "";
+					start = null;
+					end = null;
 				}
 				repaint();
 			}
