@@ -181,12 +181,12 @@ public class FigureEditor extends JFrame {
 						shp = new Circle(Math.min(start.x, end.x), Math.min(start.y, end.y), Math.abs(start.x - end.x), Math.abs(start.y - end.y));
 					else if (selectedBtn.equals("직선")) shp = new Line(start.x, start.y, end.x, end.y);
 					shapeArray.add(shp);
-
-					// init data
-					selectedBtn = "";
-					start = null;
-					end = null;
 				}
+
+				// init data
+				selectedBtn = "";
+				start = null;
+				end = null;
 				repaint();
 			}
 		}
