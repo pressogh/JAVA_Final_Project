@@ -37,7 +37,10 @@ public class FigureEditor extends JFrame {
 	}
 	
 	private class CenterPanel extends JPanel {
-		Point start, end;
+		private Point start, end;
+		// 도형 이동 시 마우스를 누른 점을 기준으로 하기 위한 변수
+		private int offX = 0, offY = 0;
+
 		public CenterPanel() {
 			setLayout(new FlowLayout());
 			setBackground(Color.YELLOW);
@@ -122,23 +125,47 @@ public class FigureEditor extends JFrame {
 			@Override
 			public void mousePressed(MouseEvent e) {
 				start = e.getPoint();
+
+				for (Shape item : shapeArray) {
+					if (item instanceof Rectangle || item instanceof Circle || item instanceof Line) {
+						if (item.selected) {
+							offX = e.getPoint().x - item.x;
+							offY = e.getPoint().y - item.y;
+							break;
+						}
+					}
+				}
 			}
 			@Override
 			public void mouseDragged(MouseEvent e) {
 				end = e.getPoint();
 				for (Shape item : shapeArray) {
-					if (item instanceof Rectangle || item instanceof Circle || item instanceof Line)
+					if (item instanceof Rectangle || item instanceof Circle || item instanceof Line) {
 						if (item.selected) {
 							int lastX = item.x, lastY = item.y;
-							item.x = e.getPoint().x;
-							item.y = e.getPoint().y;
+							// 사이즈 조절
+//							if ((item.x - 10 <= end.x && item.x + 10 >= end.x) && (item.y - 10 <= end.y && item.y + 10 >= end.y)) {
+//								System.out.println("fejwofe");
+//								item.x = e.getPoint().x;
+//								item.y = e.getPoint().y;
+//								item.width = item.width - (lastX - e.getPoint().x);
+//								item.height = item.height - (lastX - e.getPoint().y);
+//								repaint();
+//							}
+//							// 위치 이동
+//							else {
+								item.x = e.getPoint().x - offX;
+								item.y = e.getPoint().y - offY;
 
-							if (item instanceof Line) {
-								item.width -= lastX - item.x;
-								item.height -= lastY - item.y;
-							}
+								if (item instanceof Line) {
+									item.width -= lastX - item.x;
+									item.height -= lastY - item.y;
+								}
+//							}
 							repaint();
+							break;
 						}
+					}
 				}
 				repaint();
 			}
