@@ -10,7 +10,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.swing.JButton;
@@ -35,6 +34,12 @@ public class FigureEditor extends JFrame {
 		
 		setVisible(true);
 	}
+
+	private void unselectAll() {
+		for (Shape item : shapeArray) {
+			if (item instanceof Rectangle || item instanceof Circle || item instanceof Line) item.selected = false;
+		}
+	}
 	
 	private class CenterPanel extends JPanel {
 		private Point start, end;
@@ -53,13 +58,13 @@ public class FigureEditor extends JFrame {
 			super.paintComponent(g);
 			if(start == null) {
 				g.setColor(Color.BLUE);
-				for (Shape shape : shapeArray) {
-					if (shape instanceof Rectangle) {
-						((Rectangle) shape).draw(g);
-					} else if (shape instanceof Circle) {
-						((Circle) shape).draw(g);
-					} else if (shape instanceof Line) {
-						((Line) shape).draw(g);
+				for (Shape item : shapeArray) {
+					if (item instanceof Rectangle) {
+						((Rectangle) item).draw(g);
+					} else if (item instanceof Circle) {
+						((Circle) item).draw(g);
+					} else if (item instanceof Line) {
+						((Line) item).draw(g);
 					}
 				}
 				return;
@@ -97,14 +102,13 @@ public class FigureEditor extends JFrame {
 		private class mouseListener extends MouseAdapter {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				// 도형 선택 기능
 				Point point = e.getPoint();
 				for (Shape item : shapeArray) {
 					if (item instanceof Rectangle || item instanceof Circle) {
 						if ((point.x >= item.x && point.y >= item.y) && (point.x <= item.x + item.width && point.y <= item.y + item.height)) {
-							for (Shape ele : shapeArray) {
-								if (ele instanceof Rectangle || ele instanceof Circle || ele instanceof Line) ele.selected = false;
-							}
-
+							// 이미 선택된 도형이 있을 시 선택 해제
+							unselectAll();
 							item.selected = true;
 							break;
 						}
@@ -112,9 +116,8 @@ public class FigureEditor extends JFrame {
 					}
 					else if (item instanceof Line) {
 						if (point.x >= Math.min(item.x, item.width) && point.y >= Math.min(item.y, item.height) && point.x <= Math.max(item.x, item.width) && point.y <= Math.max(item.y, item.height)) {
-							for (Shape ele : shapeArray) {
-								if (ele instanceof Rectangle || ele instanceof Circle || ele instanceof Line) ele.selected = false;
-							}
+							// 이미 선택된 도형이 있을 시 선택 해제
+							unselectAll();
 							item.selected = true;
 							break;
 						}
@@ -143,17 +146,30 @@ public class FigureEditor extends JFrame {
 					if (item instanceof Rectangle || item instanceof Circle || item instanceof Line) {
 						if (item.selected) {
 							int lastX = item.x, lastY = item.y;
-							// 사이즈 조절
-//							if ((item.x - 10 <= end.x && item.x + 10 >= end.x) && (item.y - 10 <= end.y && item.y + 10 >= end.y)) {
-//								System.out.println("fejwofe");
-//								item.x = e.getPoint().x;
-//								item.y = e.getPoint().y;
-//								item.width = item.width - (lastX - e.getPoint().x);
-//								item.height = item.height - (lastX - e.getPoint().y);
-//								repaint();
-//							}
-//							// 위치 이동
-//							else {
+							int lastWidth = item.width, lastHeight = item.height;
+							// 크기 조절 기능
+							// 왼쪽 위로 크기 조절
+							if ((item.x - 10 <= end.x && item.x + 10 >= end.x) && (item.y - 10 <= end.y && item.y + 10 >= end.y)) {
+								item.x = e.getPoint().x;
+								item.y = e.getPoint().y;
+								if (!(item instanceof Line)) {
+									item.width = item.width - (item.x - lastX);
+									item.height = item.height - (item.y - lastY);
+								}
+								repaint();
+							}
+							// 오른쪽 아래로 크기 조절
+							else if (!(item instanceof Line) && (item.x + item.width - 10 <= end.x && item.x + item.width + 10 >= end.x) && (item.y + item.height - 10 <= end.y && item.y + item.height + 10 >= end.y)) {
+								item.width = item.width + (e.getPoint().x - (item.x + item.width));
+								item.height = item.height + (e.getPoint().y - (item.y + item.height));
+								repaint();
+							}
+							else if ((item instanceof Line) && (item.width - 10 <= end.x && item.width + 10 >= end.x) && (item.height - 10 <= end.y && item.height + 10 >= end.y)) {
+								item.width = e.getPoint().x;
+								item.height = e.getPoint().y;
+							}
+							// 위치 이동 기능
+							else if ((e.getPoint().x >= item.x && e.getPoint().y >= item.y) && (e.getPoint().x <= item.x + item.width && e.getPoint().y <= item.y + item.height)) {
 								item.x = e.getPoint().x - offX;
 								item.y = e.getPoint().y - offY;
 
@@ -161,7 +177,7 @@ public class FigureEditor extends JFrame {
 									item.width -= lastX - item.x;
 									item.height -= lastY - item.y;
 								}
-//							}
+							}
 							repaint();
 							break;
 						}
@@ -173,6 +189,7 @@ public class FigureEditor extends JFrame {
 			public void mouseReleased(MouseEvent e) {
 				end = e.getPoint();
 
+				// 도형 등록 기능
 				if (selectedBtn.equals("사각") || selectedBtn.equals("타원") || selectedBtn.equals("직선")) {
 					Shape shp = null;
 					if (selectedBtn.equals("사각"))
@@ -183,7 +200,7 @@ public class FigureEditor extends JFrame {
 					shapeArray.add(shp);
 				}
 
-				// init data
+				// 데이터 초기화
 				selectedBtn = "";
 				start = null;
 				end = null;
@@ -250,10 +267,7 @@ public class FigureEditor extends JFrame {
 				}
 
 				// 모든 도형 선택 해제
-				for (Shape item : shapeArray) {
-					if (item instanceof Rectangle || item instanceof Circle || item instanceof Line)
-						item.selected = false;
-				}
+				unselectAll();
 				cp.repaint();
 			}
 		}
@@ -265,7 +279,6 @@ public class FigureEditor extends JFrame {
 			for (Shape item : shapeArray) {
 				out.writeObject(item);
 			}
-			System.out.println("save");
 			out.close();
 		}
 		public Vector<Shape> loadObjectFromFile(String fileName) throws IOException, ClassNotFoundException {
