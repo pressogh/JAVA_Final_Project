@@ -146,15 +146,16 @@ public class FigureEditor extends JFrame {
 					if (item instanceof Rectangle || item instanceof Circle || item instanceof Line) {
 						if (item.selected) {
 							int lastX = item.x, lastY = item.y;
-							int lastWidth = item.width, lastHeight = item.height;
-							// 크기 조절 기능
+							// 도형 크기 조절 기능
 							// 왼쪽 위로 크기 조절
 							if ((item.x - 10 <= end.x && item.x + 10 >= end.x) && (item.y - 10 <= end.y && item.y + 10 >= end.y)) {
-								item.x = e.getPoint().x;
-								item.y = e.getPoint().y;
-								if (!(item instanceof Line)) {
-									item.width = item.width - (item.x - lastX);
-									item.height = item.height - (item.y - lastY);
+								if (item.width > 0 && item.height > 0) {
+									item.x = e.getPoint().x;
+									item.y = e.getPoint().y;
+									if (!(item instanceof Line)) {
+										item.width = item.width - (item.x - lastX);
+										item.height = item.height - (item.y - lastY);
+									}
 								}
 								repaint();
 							}
@@ -162,14 +163,13 @@ public class FigureEditor extends JFrame {
 							else if (!(item instanceof Line) && (item.x + item.width - 10 <= end.x && item.x + item.width + 10 >= end.x) && (item.y + item.height - 10 <= end.y && item.y + item.height + 10 >= end.y)) {
 								item.width = item.width + (e.getPoint().x - (item.x + item.width));
 								item.height = item.height + (e.getPoint().y - (item.y + item.height));
-								repaint();
 							}
 							else if ((item instanceof Line) && (item.width - 10 <= end.x && item.width + 10 >= end.x) && (item.height - 10 <= end.y && item.height + 10 >= end.y)) {
 								item.width = e.getPoint().x;
 								item.height = e.getPoint().y;
 							}
-							// 위치 이동 기능
-							else if ((e.getPoint().x >= item.x && e.getPoint().y >= item.y) && (e.getPoint().x <= item.x + item.width && e.getPoint().y <= item.y + item.height)) {
+							// 도형 이동 기능
+							else if (!(item instanceof Line) && (e.getPoint().x >= item.x && e.getPoint().y >= item.y) && (e.getPoint().x <= item.x + item.width && e.getPoint().y <= item.y + item.height)) {
 								item.x = e.getPoint().x - offX;
 								item.y = e.getPoint().y - offY;
 
@@ -177,6 +177,12 @@ public class FigureEditor extends JFrame {
 									item.width -= lastX - item.x;
 									item.height -= lastY - item.y;
 								}
+							}
+							else if ((item instanceof Line) && (Math.min(item.x, item.width) <= e.getPoint().x && Math.max(item.x, item.width) >= e.getPoint().x) && (Math.min(item.y, item.height) <= e.getPoint().y && Math.max(item.y, item.height) >= e.getPoint().y)) {
+								item.x = e.getPoint().x - offX;
+								item.y = e.getPoint().y - offY;
+								item.width -= lastX - item.x;
+								item.height -= lastY - item.y;
 							}
 							repaint();
 							break;
