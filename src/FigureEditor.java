@@ -172,11 +172,6 @@ public class FigureEditor extends JFrame {
 							else if (!(item instanceof Line) && (e.getPoint().x >= item.x && e.getPoint().y >= item.y) && (e.getPoint().x <= item.x + item.width && e.getPoint().y <= item.y + item.height)) {
 								item.x = e.getPoint().x - offX;
 								item.y = e.getPoint().y - offY;
-
-								if (item instanceof Line) {
-									item.width -= lastX - item.x;
-									item.height -= lastY - item.y;
-								}
 							}
 							else if ((item instanceof Line) && (Math.min(item.x, item.width) <= e.getPoint().x && Math.max(item.x, item.width) >= e.getPoint().x) && (Math.min(item.y, item.height) <= e.getPoint().y && Math.max(item.y, item.height) >= e.getPoint().y)) {
 								item.x = e.getPoint().x - offX;
@@ -233,6 +228,7 @@ public class FigureEditor extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				selectedBtn = e.getActionCommand();
 
+				// 도형 복사 기능
 				if (selectedBtn.equals("복사")) {
 					Shape shp = null;
 					for (Shape item : shapeArray) {
@@ -244,8 +240,8 @@ public class FigureEditor extends JFrame {
 						}
 					}
 					shapeArray.add(shp);
-					cp.repaint();
 				}
+				// 도형 삭제 기능
 				else if (selectedBtn.equals("삭제")) {
 					for (int i = 0; i < shapeArray.size(); i++) {
 						if ((shapeArray.get(i) instanceof Rectangle || shapeArray.get(i) instanceof Circle || shapeArray.get(i) instanceof Line) && shapeArray.get(i).selected) {
@@ -253,8 +249,8 @@ public class FigureEditor extends JFrame {
 							break;
 						}
 					}
-					cp.repaint();
 				}
+				// 도형 저장 기능
 				else if (selectedBtn.equals("저장")) {
 					try {
 						saveObjectToFile("out.dat");
@@ -316,5 +312,55 @@ public class FigureEditor extends JFrame {
 	
 	public static void main(String[] args) {
 		new FigureEditor();
+	}
+}
+
+class Shape implements Serializable {
+	int x, y;
+	int width, height;
+	boolean selected;
+
+	public Shape(int x, int y, int width, int height) {
+		this.x = x;
+		this.y = y;
+		this.width = width;
+		this.height = height;
+		this.selected = false;
+	}
+}
+class Rectangle extends Shape {
+	public Rectangle(int x, int y, int width, int height) {
+		super(x, y, width, height);
+	}
+	public void draw(Graphics g) {
+		g.drawRect(x, y, width, height);
+		if (selected) {
+			g.drawRect(x - 2, y - 2, 4, 4);
+			g.drawRect(x + width - 2, y + height - 2, 4, 4);
+		}
+	}
+}
+class Circle extends Shape {
+	public Circle(int x, int y, int width, int height) {
+		super(x, y, width, height);
+	}
+	public void draw(Graphics g) {
+		g.drawOval(x, y, width, height);
+		if (selected) {
+			g.drawRect(x - 2, y - 2, 4, 4);
+			g.drawRect(x + width - 2, y + height - 2, 4, 4);
+		}
+	}
+}
+class Line extends Shape {
+	public Line(int x1, int y1, int x2, int y2) {
+		super(x1, y1, x2, y2);
+	}
+	public void draw(Graphics g) {
+		g.drawLine(x, y, width, height);
+		if (selected) {
+			g.drawRect(x - 2, y - 2, 4, 4);
+			g.drawRect(width - 2,height - 2, 4, 4);
+		}
 	}
 }
